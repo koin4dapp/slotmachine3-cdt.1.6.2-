@@ -39,7 +39,7 @@ CONTRACT slotmachine1 : public contract {
     //table for detect caller has smart contract deployed
     struct [[eosio::table]] abi_hash {
       name              owner;
-      capi_checksum256  hash;
+      checksum256  hash;
       uint64_t primary_key()const { return owner.value; }
     
       EOSLIB_SERIALIZE( abi_hash, (owner)(hash) )
@@ -71,9 +71,9 @@ CONTRACT slotmachine1 : public contract {
     
     //function detect account has abi_hash
     bool hascode( name account) {
-      abi_hash_table table(_self, _self.value);
-      auto itr = table.find( account.value );
-      return (itr != table.end());
+      abi_hash_table abitable(_self, _self.value);
+      auto itr = abitable.find( account.value );
+      return (itr != abitable.end());
     }    
     
     //singletone setter/getter for random seed, better use external oracle service
