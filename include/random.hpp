@@ -4,9 +4,11 @@ created by koin4dapp.appspot.com
 warning, this is only for learning purpose, use it as your own risk
 */
 
-#include <eosiolib/transaction.h>
-#include <eosiolib/crypto.h>
+#include <eosio/transaction.hpp>
+#include <eosio/crypto.hpp>
 #include <string>
+
+using namespace eosio;
 
 class random {
 private:
@@ -17,46 +19,22 @@ public:
         auto s = read_transaction(nullptr,0);
         char *tx = (char *)malloc(s);
         read_transaction(tx, s);  //packed_trx
-        capi_checksum256 result;
-        sha256(tx,s, &result);    //txid
-
-        seed = result.hash[7];
-        seed <<= 8;
-        seed ^= result.hash[6];
-        seed <<= 8;
-        seed ^= result.hash[5];
-        seed <<= 8;
-        seed ^= result.hash[4];
-        seed <<= 8;
-        seed ^= result.hash[3];
-        seed <<= 8;
-        seed ^= result.hash[2];
-        seed <<= 8;
-        seed ^= result.hash[1];
-        seed <<= 8;
-        seed ^= result.hash[0];
-        seed ^= initseed;
-        seed ^= (tapos_block_prefix()*tapos_block_num()); //current block
+        checksum256 result;
+        result = sha256(tx, s);   //txid
+        
+        auto hash=result.extract_as_byte_array();
+        
+        seed = (hash[7]<<8 || hash[6] << 8 || hash[5] << 8 || hash[4] << 8 || hash[3] << 8 || hash[2] << 8 || hash[1] << 8 || hash[0]) 
+          ^ initseed
+          ^ (tapos_block_prefix()*tapos_block_num()); //current block
     }
     
     void randraw() { 
-        capi_checksum256 result; //32bytes of 8 chunks of uint_32
-        sha256((char *)&seed, sizeof(seed), &result);
-        seed = result.hash[7];
-        seed <<= 8;
-        seed ^= result.hash[6];
-        seed <<= 8;
-        seed ^= result.hash[5];
-        seed <<= 8;
-        seed ^= result.hash[4];
-        seed <<= 8;
-        seed ^= result.hash[3];
-        seed <<= 8;
-        seed ^= result.hash[2];
-        seed <<= 8;
-        seed ^= result.hash[1];
-        seed <<= 8;
-        seed ^= result.hash[0];
+        checksum256 result; //32bytes of 8 chunks of uint_32
+        result = sha256((char *)&seed, sizeof(seed));
+        auto hash=result.extract_as_byte_array();
+        
+        seed = (hash[7]<<8 || hash[6] << 8 || hash[5] << 8 || hash[4] << 8 || hash[3] << 8 || hash[2] << 8 || hash[1] << 8 || hash[0]);
     }
     
     uint64_t rand(uint64_t to) { //generate random 1 - to
