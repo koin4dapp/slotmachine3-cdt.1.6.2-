@@ -20,13 +20,26 @@ public:
         char *tx = (char *)malloc(s);
         read_transaction(tx, s);  //packed_trx
         checksum256 result;
-        result = sha256(tx, s);   //txid
+        result = sha256(tx, s);    //txid
         
         auto hash=result.extract_as_byte_array();
         
-        seed = (hash[7]<<8 || hash[6] << 8 || hash[5] << 8 || hash[4] << 8 || hash[3] << 8 || hash[2] << 8 || hash[1] << 8 || hash[0]) 
-          ^ initseed
-          ^ (tapos_block_prefix()*tapos_block_num()); //current block
+        seed = hash[7];
+        seed <<= 8;
+        seed ^= hash[6];
+        seed <<= 8;
+        seed ^= hash[5];
+        seed <<= 8;
+        seed ^= hash[4];
+        seed <<= 8;
+        seed ^= hash[3];
+        seed <<= 8;
+        seed ^= hash[2];
+        seed <<= 8;
+        seed ^= hash[1];
+        seed <<= 8;
+        seed ^= hash[0];
+        seed ^= (initseed ^ (tapos_block_prefix()*tapos_block_num())); //current block
     }
     
     void randraw() { 
@@ -34,7 +47,21 @@ public:
         result = sha256((char *)&seed, sizeof(seed));
         auto hash=result.extract_as_byte_array();
         
-        seed = (hash[7]<<8 || hash[6] << 8 || hash[5] << 8 || hash[4] << 8 || hash[3] << 8 || hash[2] << 8 || hash[1] << 8 || hash[0]);
+        seed = hash[7];
+        seed <<= 8;
+        seed ^= hash[6];
+        seed <<= 8;
+        seed ^= hash[5];
+        seed <<= 8;
+        seed ^= hash[4];
+        seed <<= 8;
+        seed ^= hash[3];
+        seed <<= 8;
+        seed ^= hash[2];
+        seed <<= 8;
+        seed ^= hash[1];
+        seed <<= 8;
+        seed ^= hash[0];
     }
     
     uint64_t rand(uint64_t to) { //generate random 1 - to
